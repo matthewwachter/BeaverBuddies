@@ -8,8 +8,8 @@ namespace TimberNet
         private readonly List<ISocketListener> listeners = new List<ISocketListener>();
 
         private readonly ConcurrentQueueWithWait<ISocketStream> accepted = new ConcurrentQueueWithWait<ISocketStream>();
-        private bool isAccepting = false;
-        private bool isStopped = false;
+        private volatile bool isAccepting = false;
+        private volatile bool isStopped = false;
 
         public IEnumerable<ISocketListener> Listeners => listeners;
 

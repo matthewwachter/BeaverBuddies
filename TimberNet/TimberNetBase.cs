@@ -243,9 +243,9 @@ namespace TimberNet
                     continue;
                 }
 
-                if (messageLength == 0)
+                if (messageLength <= 0 || messageLength > MAX_BUFFER_SIZE)
                 {
-                    Log("Received message of length 0; aborting listen");
+                    Log($"Received invalid message length {messageLength}; aborting listen");
                     break;
                 }
 

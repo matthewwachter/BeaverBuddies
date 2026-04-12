@@ -1243,7 +1243,7 @@ namespace BeaverBuddies.Events
             // Note that UpdateWaterLevelSliderValue does modify the slider value, so this
             // is UI logic we need to keep updated if the method changes.
             float num = __instance.WaterLevelSliderValue;
-            if (__instance.WaterLevelSliderValue == num) return true;
+            if (num == newHeight) return true;
             return SluiceSliderUpdatedEvent.DoPrefix(
                 // Note: it's num - Range, not num
                 __instance._sluice._sluiceState, SluiceLimitSliderType.Outflow, num - (float)__instance.Range

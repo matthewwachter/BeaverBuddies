@@ -549,9 +549,9 @@ namespace BeaverBuddies
             // Update speed and pause if needed for the new tick.
             UpdateSpeed();
 
-            if (io is ServerEventIO && ticksSinceLoad == 1)
+            if (io is ServerEventIO serverIO && ticksSinceLoad == 1)
             {
-                ((ServerEventIO)io).StopAcceptingClients();
+                serverIO.StopAcceptingClients();
             }
         }
 

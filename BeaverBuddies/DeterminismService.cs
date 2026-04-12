@@ -124,7 +124,8 @@ namespace BeaverBuddies
         public static bool IsEntityInitializing = false;
         public static bool IsNonGameplay = false;
         private static System.Random random = new System.Random();
-        private static HashSet<Type> activeNonGamePatchers = new HashSet<Type>();
+        private static readonly HashSet<Type> activeNonGamePatchers = new HashSet<Type>();
+        private static readonly object nonGamePatcherLock = new object();
         private static int? nextSeedOnLoad;
 
         public void Reset()
@@ -132,7 +133,7 @@ namespace BeaverBuddies
             IsNonGameplay = false;
             IsTicking = false;
             IsEntityInitializing = false;
-            activeNonGamePatchers.Clear();
+            lock (nonGamePatcherLock) { activeNonGamePatchers.Clear(); }
             // No need to reset random
             // Don't reset seed, since it's set before the Reset
         }
@@ -208,7 +209,8 @@ namespace BeaverBuddies
                     return true;
                 }
 
-                bool areActiveNonGamePatchers = activeNonGamePatchers.Count > 0;
+                bool areActiveNonGamePatchers;
+                lock (nonGamePatcherLock) { areActiveNonGamePatchers = activeNonGamePatchers.Count > 0; }
 
                 // If this is non-game code, don't use the Game's random
                 if (areActiveNonGamePatchers) return true;
@@ -267,13 +269,16 @@ namespace BeaverBuddies
 
         public static bool SetNonGamePatcherActive(System.Type patcherType, bool active)
         {
-            if (active)
+            lock (nonGamePatcherLock)
             {
-                return activeNonGamePatchers.Add(patcherType);
-            }
-            else
-            {
-                return activeNonGamePatchers.Remove(patcherType);
+                if (active)
+                {
+                    return activeNonGamePatchers.Add(patcherType);
+                }
+                else
+                {
+                    return activeNonGamePatchers.Remove(patcherType);
+                }
             }
         }
 
@@ -842,7 +847,8 @@ namespace BeaverBuddies
             // the save, so this guards against duplicate GUIDs.
             // It should not happen repeatedly, but we max out (and error) if it goes
             // over 100 times.
-            for (int i = 0; i < 100; i++)
+            const int maxRetries = 100;
+            for (int i = 0; i < maxRetries; i++)
             {
                 var existingEntity = __instance._entityRegistry.GetEntity(id);
                 if (existingEntity == null) break;
@@ -858,6 +864,10 @@ namespace BeaverBuddies
                     Plugin.Log(logMessage);
                 }
                 id = Guid.NewGuid();
+                if (i == maxRetries - 1)
+                {
+                    Plugin.LogError($"Failed to generate unique GUID after {maxRetries} attempts. Entity may have duplicate GUID.");
+                }
             }
             TickingService ts = GetSingleton<TickingService>();
             if (ts != null)

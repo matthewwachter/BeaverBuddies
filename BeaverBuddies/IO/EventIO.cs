@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using BeaverBuddies.Events;
 
 namespace BeaverBuddies.IO
@@ -42,7 +43,7 @@ namespace BeaverBuddies.IO
 
         bool HasEventsForTick(int tick);
 
-        private static EventIO instance;
+        private static volatile EventIO instance;
 
         public static bool IsNull => instance == null;
 
@@ -59,11 +60,12 @@ namespace BeaverBuddies.IO
 
         public static void Reset()
         {
-            if (instance != null)
+            var local = instance;
+            if (local != null)
             {
                 Plugin.Log("Closing EventIO...");
-                instance.Close();
                 instance = null;
+                local.Close();
                 Plugin.Log("Success!");
             }
         }
