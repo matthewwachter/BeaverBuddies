@@ -220,12 +220,6 @@ namespace BeaverBuddies
             _tickingService.replayService = this;
         }
 
-        public void SetTicksSinceLoad(int ticks)
-        {
-            Plugin.Log($"Setting ticks since load to: {ticks}");
-            ticksSinceLoad = ticks;
-        }
-
         public void PostLoad()
         {
             Plugin.Log("PostLoad");
@@ -611,11 +605,6 @@ namespace BeaverBuddies
 
         // Should be ok non-concurrent - for now only main thread call this
         private List<Action> onCompletedFullTick = new List<Action>();
-
-        public void FinishFullTick()
-        {
-            ShouldCompleteFullTick = true;
-        }
 
         public void FinishFullTickAndThen(Action value)
         {

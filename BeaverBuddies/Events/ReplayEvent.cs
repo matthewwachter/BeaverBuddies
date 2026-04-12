@@ -1,7 +1,6 @@
 ﻿using BeaverBuddies.IO;
 using System;
 using Timberborn.BaseComponentSystem;
-using Timberborn.BlueprintSystem;
 using Timberborn.Buildings;
 using Timberborn.EntitySystem;
 using Timberborn.TemplateSystem;
