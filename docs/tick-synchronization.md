@@ -304,14 +304,9 @@ Some Timberborn systems perform work in `UpdateSingleton()` (called every frame)
 
 - **`RecoveredGoodStackSpawner`** -- Normally spawns recovered goods during its `UpdateSingleton`. The original update is suppressed by a Harmony patch (`RecoveredGoodStackSpawnerUpdateSingletonPatcher`), and `TickReplacerService.Tick()` calls the base update behavior instead, ensuring spawning happens at deterministic tick boundaries.
 
-### TickWathcerService
+### TickWatcherService (Removed)
 
-`TickWathcerService` (`BeaverBuddies/TickWatcherService.cs`) is a simple `ITickableSingleton` that counts ticks and tracks time. It provides:
-
-- **`TicksSinceLoad`** -- Counter incremented each tick.
-- **`TotalTimeInFixedSeconds`** -- Derived from `IDayNightCycle.HoursPassedToday`, converts the in-game time to seconds.
-
-Note: This service predates the tick counting in `ReplayService` and appears to be largely superseded by it. The `ReplayService` manages its own `ticksSinceLoad` counter that serves as the authoritative tick count for synchronization.
+> **Note:** `TickWatcherService` (`BeaverBuddies/TickWatcherService.cs`) has been removed. It was superseded by `ReplayService`, which manages its own `ticksSinceLoad` counter that serves as the authoritative tick count for synchronization.
 
 ---
 

@@ -370,30 +370,13 @@ Created via the static factory `ClientEventIO.Create(ISocketStream, MapReceived,
 
 ## File IO
 
-For replay recording and debugging, BeaverBuddies provides file-based `EventIO` implementations in `BeaverBuddies/IO/FileIO.cs`.
+For replay recording and debugging, BeaverBuddies provides file-based event recording. The `JsonSettings` class used for serialization lives in `BeaverBuddies/IO/Serializer.cs`.
 
-### FileWriteIO
-
-Records all events to a JSON file as they happen:
-
-- `UserEventBehavior = Play` -- events execute normally.
-- `RecordReplayedEvents = true` -- captures everything.
-- `WriteEvents()` serializes each event to JSON and appends it to the file.
-- The file format is a JSON array (`[` on open, each event followed by `,`, `]` on close).
-- Uses a `ReaderWriterLock` for thread safety.
-
-### FileReadIO
-
-Plays back events from a previously recorded JSON file:
-
-- Reads the entire file on construction, parsing it into a `List<ReplayEvent>`.
-- `ReadEvents(int)` uses `TimberNetBase.PopEventsForTick()` to return events up to the requested tick.
-- `IsOutOfEvents` returns `true` when the event list is empty (replay is finished).
-- `RecordReplayedEvents = false` -- does not re-record during playback.
+> **Note:** The `FileWriteIO` and `FileReadIO` classes that were previously in `BeaverBuddies/IO/FileIO.cs` have been removed during cleanup.
 
 ### RecordToFileService
 
-An `IPostLoadableSingleton` that automatically sets up `FileWriteIO` on game load, saving replays to `Replays/<SaveName>.json`.
+An `IPostLoadableSingleton` that automatically sets up event recording on game load, saving replays to `Replays/<SaveName>.json`.
 
 ---
 

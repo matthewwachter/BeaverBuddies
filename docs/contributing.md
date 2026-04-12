@@ -14,7 +14,7 @@ This guide covers how to contribute to BeaverBuddies, including code conventions
 2. Follow the [Getting Started](getting-started) guide to set up your environment
 3. Create a feature branch from `dev`
 4. Implement your changes
-5. Test with two game instances (host + client) or the ClientServerSimulator
+5. Test with two game instances (host + client)
 6. Submit a pull request to `dev`
 
 ## Code Conventions
@@ -104,7 +104,7 @@ public static bool Prefix(BuildingComponent __instance, int value)
 ### 4. Test Your Changes
 
 1. **Two-instance test:** Host a game on one Timberborn instance, join from another. Perform the action on both sides and verify it syncs correctly.
-2. **ClientServerSimulator:** For automated testing, create JSON event scripts and use the simulator (see [Testing & Debugging](testing)).
+2. **Replay files:** Record and replay event sessions for offline debugging (see [Testing & Debugging](testing)).
 3. **Desync check:** Play for several minutes after your action to verify no desyncs occur. Enable `AlwaysTrace` in settings for detailed tracing.
 
 ## Diagnosing Desyncs

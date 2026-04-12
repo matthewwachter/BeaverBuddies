@@ -112,13 +112,12 @@ The `IS_STEAM` conditional compilation symbol enables Steam-specific code paths 
 
 ## Solution Structure
 
-The solution contains four projects:
+The solution contains three projects:
 
 | Project | Type | Description |
 |---------|------|-------------|
 | **BeaverBuddies** | .NET Standard 2.1 Library | Main mod - BepInEx plugin with all game patches and multiplayer logic |
 | **TimberNet** | .NET Standard 2.1 Library | Standalone networking library (TCP/Steam transport, message framing) |
-| **ClientServerSimulator** | Windows Forms App | Testing tool for simulating client/server communication |
 | **Inspector** | Console App | Utility tools (localization updates, etc.) |
 
 ## Key Dependencies

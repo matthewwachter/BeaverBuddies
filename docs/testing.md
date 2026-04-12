@@ -2,11 +2,13 @@
 
 This page covers the testing tools, debugging workflows, and logging infrastructure available in BeaverBuddies.
 
-## ClientServerSimulator
+## ClientServerSimulator (Removed)
+
+> **Note:** The `ClientServerSimulator` project was removed as part of [PR #139](https://github.com/thomaswp/BeaverBuddies/pull/139). The testing approach has changed to using two game instances (host + client) instead. The documentation below is retained for historical reference.
 
 **File:** `ClientServerSimulator/Drivers.cs`
 
-The `ClientServerSimulator` project is a standalone Windows Forms application for testing the networking layer without running Timberborn. It simulates a server and client communicating over localhost.
+The `ClientServerSimulator` project was a standalone Windows Forms application for testing the networking layer without running Timberborn. It simulated a server and client communicating over localhost.
 
 ### DriverBase\<T\>
 
@@ -105,59 +107,26 @@ The Inspector project also contains unit tests for networking components:
 
 ## Replay File Debugging
 
-**File:** `BeaverBuddies/IO/FileIO.cs`
+**File:** `BeaverBuddies/IO/Serializer.cs`
 
 BeaverBuddies includes a file-based event recording and playback system for reproducing bugs offline.
 
-### FileWriteIO
+> **Note:** `FileWriteIO` and `FileReadIO` were removed during cleanup. The `JsonSettings` class that was previously in `FileIO.cs` now lives in `Serializer.cs`. Replay recording and playback is handled through `RecordToFileService` and the `EventIO` abstraction.
 
-`FileWriteIO` implements the `EventIO` interface and writes all events to a JSON file as they occur:
+### RecordToFileService
 
-```csharp
-public class FileWriteIO : EventIO
-{
-    public bool RecordReplayedEvents => true;
-    public UserEventBehavior UserEventBehavior => UserEventBehavior.Play;
-
-    public void WriteEvents(params ReplayEvent[] events)
-    {
-        for (int i = 0; i < events.Length; i++)
-        {
-            string json = JsonConvert.SerializeObject(e, settings);
-            WriteToFile(json + ",");
-        }
-    }
-}
-```
-
-The output file is a JSON array written incrementally (opened with `[`, each event appended with a trailing comma, closed with `]`). Thread safety is maintained via a `ReaderWriterLock`.
-
-`RecordToFileService` is an `IPostLoadableSingleton` that automatically sets up `FileWriteIO` when enabled. The file is saved to `Replays/<saveName>.json`.
-
-### FileReadIO
-
-`FileReadIO` reads a previously recorded JSON file and replays events at the correct ticks:
-
-```csharp
-public List<ReplayEvent> ReadEvents(int ticksSinceLoad)
-{
-    return TimberNetBase.PopEventsForTick(ticksSinceLoad, events, e => e.ticksSinceLoad);
-}
-```
-
-It loads the entire file at construction time and uses `PopEventsForTick` to return events matching the current tick. `IsOutOfEvents` returns true when all events have been consumed.
+`RecordToFileService` is an `IPostLoadableSingleton` that automatically sets up event recording when enabled. The file is saved to `Replays/<saveName>.json`.
 
 ### Usage
 
 To record a session:
-1. Enable `RecordToFileService` (or set up `FileWriteIO` manually).
+1. Enable `RecordToFileService`.
 2. Play through the scenario you want to capture.
 3. The JSON file is written to the `Replays/` directory.
 
 To replay a session:
-1. Create a `FileReadIO` pointing to the recorded JSON file.
-2. Set it as the active `EventIO` via `EventIO.Set()`.
-3. Load the same save file. Events replay automatically at the correct ticks.
+1. Set up the recorded JSON file as the event source via `EventIO.Set()`.
+2. Load the same save file. Events replay automatically at the correct ticks.
 
 This is particularly useful for reproducing desyncs -- record the server's events, then replay them on a client to see where divergence occurs.
 

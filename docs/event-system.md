@@ -137,15 +137,9 @@ The `SpeedChangePatcher` patches `SpeedManager.ChangeSpeed` directly (rather tha
 
 Additional patchers (`SpeedLockPatcher`, `SpeedUnlockPatcher`) handle dialog-triggered speed locks. Clients skip these entirely since only the host should freeze for dialogs.
 
-### SystemEvents.cs -- Autosave
+### SystemEvents.cs -- Autosave (Removed)
 
-**File:** `BeaverBuddies/Events/SystemEvents.cs`
-
-| Event Class | Description |
-|-------------|-------------|
-| `AutosaveEvent` | Defers autosaves to ensure they happen at consistent tick boundaries |
-
-The autosave patcher is currently commented out in the source, but the event class remains. When active, it ensures that autosaves triggered by the game's timer are synchronized -- the client should never autosave independently, and the server defers non-instant saves through the event system.
+> **Note:** `BeaverBuddies/Events/SystemEvents.cs` has been removed. The `AutosaveEvent` it contained was deprecated (the autosave patcher was already commented out in source before removal).
 
 ### ConnectionEvents.cs -- Initialization and Desync Handling
 
@@ -295,7 +289,7 @@ The server sends a `HeartbeatEvent` at the end of each tick. This signals to cli
 
 ## JSON Serialization
 
-**File:** `BeaverBuddies/IO/FileIO.cs`
+**File:** `BeaverBuddies/IO/Serializer.cs`
 
 All events are serialized using Newtonsoft.Json with custom settings defined in the `JsonSettings` class:
 
@@ -341,4 +335,4 @@ The `WriteEvents` method serializes events to JSON and passes them to TimberNet,
 
 ### File-Based Serialization
 
-`FileWriteIO` writes events as a JSON array to disk for replay recording. `FileReadIO` reads the array back and uses `TimberNetBase.PopEventsForTick()` to return events matching the current tick during playback.
+Replay recording writes events as a JSON array to disk. Playback reads the array back and uses `TimberNetBase.PopEventsForTick()` to return events matching the current tick. (The `FileWriteIO` and `FileReadIO` classes that previously handled this were removed during cleanup.)

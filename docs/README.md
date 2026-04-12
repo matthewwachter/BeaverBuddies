@@ -56,7 +56,6 @@ BeaverBuddies/              # Main mod (BepInEx plugin)
   Steam/                     # Steam P2P networking & overlay
   Util/                      # Utilities & logging
 TimberNet/                   # Standalone networking library
-ClientServerSimulator/       # Testing tool (Windows Forms)
 Inspector/                   # Utility tools
 ```
 
