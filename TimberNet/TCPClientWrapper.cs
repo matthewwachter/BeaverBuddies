@@ -43,12 +43,10 @@ namespace TimberNet
 
         public void Close()
         {
-            try
-            {
-                client.GetStream().Close();
-                client.Close();
-            }
-            catch { }
+            try { client.GetStream()?.Dispose(); }
+            catch (Exception) { }
+            try { client.Dispose(); }
+            catch (Exception) { }
         }
 
         public int Read(byte[] buffer, int offset, int count)

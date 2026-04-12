@@ -44,12 +44,18 @@ namespace BeaverBuddies.Events
          */
         public static void SetSpeedSilentlyNow(SpeedManager speedManager, float speed)
         {
-            silently = true;
-            speedManager.ChangeSpeed(speed);
-            silently = false;
-
-            // Have to call ChangeSpeed again to immediate update it.
-            speedManager.ChangeSpeed();
+            bool previousSilently = silently;
+            try
+            {
+                silently = true;
+                speedManager.ChangeSpeed(speed);
+                // Have to call ChangeSpeed again to immediate update it.
+                speedManager.ChangeSpeed();
+            }
+            finally
+            {
+                silently = previousSilently;
+            }
         }
 
         static bool Prefix(SpeedManager __instance, ref float speed)

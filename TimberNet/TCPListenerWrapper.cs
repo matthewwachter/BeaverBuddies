@@ -27,7 +27,10 @@ namespace TimberNet
 
         public void Stop()
         {
-            listener.Stop();
+            try { listener.Stop(); }
+            catch (Exception) { }
+            try { listener.Server?.Dispose(); }
+            catch (Exception) { }
         }
     }
 }

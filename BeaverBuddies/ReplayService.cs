@@ -309,7 +309,8 @@ namespace BeaverBuddies
                     break;
                 if (eventTime < currentTick)
                 {
-                    Plugin.LogWarning($"Event past time: {eventTime} < {currentTick}");
+                    Plugin.LogError($"Skipping event from past tick: {eventTime} < {currentTick} (type: {replayEvent.type})");
+                    continue;
                 }
                 //Plugin.Log($"Replaying event [{replayEvent.ticksSinceLoad}]: {replayEvent.type}");
                 

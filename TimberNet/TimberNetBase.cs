@@ -21,6 +21,8 @@ namespace TimberNet
         public const string HEARTBEAT_EVENT = "Heartbeat";
         public const int MAX_BUFFER_SIZE = 8192 * 4; // 32K
 
+        private readonly object sendLock = new object();
+
         public delegate void MessageReceived(string message);
         public delegate void MapReceived(byte[] mapBytes);
 
@@ -173,18 +175,21 @@ namespace TimberNet
 
         protected void SendDataWithLength(ISocketStream stream, byte[] data)
         {
-            SendLength(stream, data.Length);
-            int chunkSize = stream.MaxChunkSize;
-            // How long to sleep between chunks (may be 0)
-            int sleepMS = stream.MaxChunkSize * 1000 / stream.MaxBytesPerSecond;
-            for (int i = 0; i < data.Length; i += chunkSize)
+            lock (sendLock)
             {
-                if (i != 0)
+                SendLength(stream, data.Length);
+                int chunkSize = stream.MaxChunkSize;
+                // How long to sleep between chunks (may be 0)
+                int sleepMS = stream.MaxChunkSize * 1000 / stream.MaxBytesPerSecond;
+                for (int i = 0; i < data.Length; i += chunkSize)
                 {
-                    Thread.Sleep(sleepMS);
+                    if (i != 0)
+                    {
+                        Thread.Sleep(sleepMS);
+                    }
+                    int length = Math.Min(chunkSize, data.Length - i);
+                    stream.Write(data, i, length);
                 }
-                int length = Math.Min(chunkSize, data.Length - i);
-                stream.Write(data, i, length);
             }
         }
 
