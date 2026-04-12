@@ -185,9 +185,10 @@ namespace BeaverBuddies.Connect
             //string saveName = Guid.NewGuid().ToString();
             string saveName = TimberNetBase.GetHashCode(mapBytes).ToString("X8");
             SaveReference saveRef = new SaveReference("Online Games", new SettlementReference(saveName, _gameSaveRepository.DefaultSaveDirectory));
-            Stream stream = _gameSaveRepository.CreateSaveSkippingNameValidation(saveRef);
-            stream.Write(mapBytes);
-            stream.Close();
+            using (Stream stream = _gameSaveRepository.CreateSaveSkippingNameValidation(saveRef))
+            {
+                stream.Write(mapBytes);
+            }
 
             // Set the RNG seed before loading the map
             // The server does the same

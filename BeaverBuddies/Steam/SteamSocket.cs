@@ -69,16 +69,19 @@ namespace BeaverBuddies.Steam
             while (!readBuffer.WaitAndTryDequeue(out result)) { }
             int bytesToCopy = Math.Min(count, result.Length - readOffset);
             Array.Copy(result, readOffset, buffer, offset, bytesToCopy);
-            if (result.Length > bytesToCopy)
+            if (readOffset + bytesToCopy < result.Length)
             {
                 // This will fail we ever receive multiple messages in a single packet.
                 // I don't think that can happen right now unless Steam merges packets, which
                 // seems not to happen... but we should log a more useful
                 // warning. And right now the "readOffset" should always be 0.
-                Plugin.LogWarning($"SteamSocket read {bytesToCopy} bytes, but {result.Length - bytesToCopy} bytes were left over. This is probably a bug!");
-                readOffset = bytesToCopy;
+                Plugin.LogWarning($"SteamSocket read {bytesToCopy} bytes, but {result.Length - readOffset - bytesToCopy} bytes were left over. This is probably a bug!");
+                readOffset += bytesToCopy;
             }
-            //Plugin.Log($"SteamSocket receiving {bytesToCopy} bytes");
+            else
+            {
+                readOffset = 0;
+            }
 
             return bytesToCopy;
         }

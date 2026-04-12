@@ -157,9 +157,9 @@ namespace BeaverBuddies.DesyncDetecter
             // The tick we're looking for is the last one
             // minus the difference between the requested and current tick
             int index = traces.Count - 1 + tick - currentTick;
-            if (index < 0)
+            if (index < 0 || index >= traces.Count)
             {
-                Plugin.LogWarning($"Attempting to verify already deleted tick {tick}");
+                Plugin.LogWarning($"Attempting to verify tick {tick} outside trace range (index={index}, traces={traces.Count})");
                 return true;
             }
 

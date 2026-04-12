@@ -105,55 +105,61 @@ namespace BeaverBuddies.Reporting
                 { "records", records }
             };
             
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-            string bodyContent = body.ToString();
-            Plugin.Log(bodyContent);
-            HttpContent content = new StringContent(bodyContent, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await client.PostAsync(CREATE_URL, content);
-            if (!response.IsSuccessStatusCode)
+            using (HttpClient client = new HttpClient())
             {
-                Plugin.LogError($"Report post failed: {response.ReasonPhrase}");
-                Plugin.LogError(await response.Content.ReadAsStringAsync());
-                return false;
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+                string bodyContent = body.ToString();
+                Plugin.Log(bodyContent);
+                using (HttpContent content = new StringContent(bodyContent, Encoding.UTF8, "application/json"))
+                {
+                    HttpResponseMessage response = await client.PostAsync(CREATE_URL, content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Plugin.LogError($"Report post failed: {response.ReasonPhrase}");
+                        Plugin.LogError(await response.Content.ReadAsStringAsync());
+                        return false;
+                    }
+                    string responseString = await response.Content.ReadAsStringAsync();
+                    Plugin.Log(responseString);
+
+                    // If we didn't have a map, stop here
+                    if (mapBytes == null) return true;
+
+                    string recordID;
+                    try
+                    {
+                        JObject responseJSON = JObject.Parse(responseString);
+                        recordID = (string) responseJSON["records"][0]["id"];
+                    }
+                    catch (Exception)
+                    {
+                        Plugin.LogError($"Invalid response: {responseString}");
+                        return false;
+                    }
+
+                    string base64Encoded = Convert.ToBase64String(mapBytes);
+
+                    body = new JObject()
+                    {
+                        { "contentType", "application/zip" },
+                        { "file", base64Encoded },
+                        { "filename", $"{mapName}.zip" },
+                    };
+
+                    using (HttpContent uploadContent = new StringContent(body.ToString(), Encoding.UTF8, "application/json"))
+                    {
+                        response = await client.PostAsync(string.Format(UPLOAD_URL, recordID), uploadContent);
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            Plugin.LogError($"Upload map failed: {response.ReasonPhrase}");
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
             }
-            string responseString = await response.Content.ReadAsStringAsync();
-            Plugin.Log(responseString);
-
-            // If we didn't have a map, stop here
-            if (mapBytes == null) return true;
-
-            string recordID;
-            try
-            {
-                JObject responseJSON = JObject.Parse(responseString);
-                recordID = (string) responseJSON["records"][0]["id"];
-            } catch
-            {
-                Plugin.LogError($"Invalid response: {responseString}");
-                return false;
-            }
-
-            string base64Encoded = Convert.ToBase64String(mapBytes);
-
-            body = new JObject()
-            {
-                { "contentType", "application/zip" },
-                { "file", base64Encoded },
-                { "filename", $"{mapName}.zip" },
-            };
-
-            HttpContent uploadContent = new StringContent(body.ToString(), Encoding.UTF8, "application/json");
-            response = await client.PostAsync(string.Format(UPLOAD_URL, recordID), uploadContent);
-            if (!response.IsSuccessStatusCode)
-            {
-                Plugin.LogError($"Upload map failed: {response.ReasonPhrase}");
-                return false;
-            }
-
-            return true;
         }
         
 

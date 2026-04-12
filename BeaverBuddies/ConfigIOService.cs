@@ -41,7 +41,6 @@ namespace BeaverBuddies
                 _settings.SilenceLogging.SetValue(!config.Verbose);
                 _settings.ShowFirstTimerMessage.SetValue(config.FirstTimer);
                 _settings.ReportingConsent.SetValue(config.ReportingConsent);
-                _settings.AlwaysTrace.SetValue(config.Verbose);
                 _settings.AlwaysTrace.SetValue(config.AlwaysDebug);
                 Plugin.Log("Transferred config from file to settings.");
                 DeleteConfigFile();
@@ -58,7 +57,7 @@ namespace BeaverBuddies
             config = new ReplayConfig();
             try
             {
-                JsonConvert.PopulateObject(File.ReadAllText(configPath), config, deserializeSettings);
+                JsonConvert.PopulateObject(File.ReadAllText(path), config, deserializeSettings);
                 return true;
             }
             catch (Exception)
